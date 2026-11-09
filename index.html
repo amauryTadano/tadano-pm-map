@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Tadano PM — Carte CRM V3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:#f3f5f8;color:#172238}header{background:#12213a;color:white;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px}header h1{font-size:20px;margin:0}header small{color:#c9d7e9}.panel{padding:12px 22px;background:white;border-bottom:1px solid #dce2e9;display:flex;flex-wrap:wrap;align-items:center;gap:12px}.panel label{font-size:14px}.panel input{min-width:260px;padding:10px;border:1px solid #aeb9c8;border-radius:6px}.panel button{background:#c21e30;color:white;border:0;padding:11px 17px;border-radius:6px;cursor:pointer;font-weight:600}.panel button.secondary{background:#475569}.note{font-size:12px;color:#64748b;max-width:470px}.status{padding:8px 22px;font-size:13px;background:#e8eef7;min-height:34px}#map{height:calc(100vh - 167px);min-height:440px;background:#e1e8ef}.fallback{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;color:#51627a}@media(max-width:650px){header{display:block}#map{height:65vh}.panel input{min-width:180px;max-width:100%}}
+</style></head><body>
+<header><div><h1>TADANO PM | Carte commerciale V3</h1><small>Google Maps — France métropolitaine</small></div><small>Prototype de validation cartographique</small></header>
+<section class="panel"><label for="apiKey">Clé Google Maps</label><input id="apiKey" type="password" autocomplete="off" placeholder="Saisir la clé API (AIza...)" aria-label="Clé Google Maps"><button id="load">Afficher la carte</button><button id="clear" class="secondary">Effacer la clé mémorisée</button><span class="note">La clé est conservée uniquement dans le stockage local de ce navigateur sur ce site. Elle n'est pas publiée dans GitHub. Elle reste néanmoins accessible au JavaScript de cette page.</span></section>
+<div class="status" id="status" role="status">Saisis ta clé Google Maps puis clique sur « Afficher la carte ».</div>
+<div id="map"><div class="fallback">Carte Google Maps prête à être initialisée.</div></div>
+<script>
+'use strict';
+const input=document.getElementById('apiKey');const status=document.getElementById('status');
+input.value=localStorage.getItem('tadano_maps_browser_key')||'';
+let loading=false;
+function message(t){status.textContent=t;}
+window.initTadanoMap=function(){try{const map=new google.maps.Map(document.getElementById('map'),{center:{lat:46.603354,lng:1.888334},zoom:6,mapTypeControl:true,streetViewControl:false,fullscreenControl:true});window.tadanoMap=map;message('Carte Google Maps chargée. Prochaine étape : importer les entreprises et afficher les marqueurs.');}catch(e){message('Erreur lors de l’initialisation de la carte : '+e.message);}};
+window.gm_authFailure=function(){message('Google Maps a refusé la clé. Vérifie la facturation, les restrictions HTTP et Maps JavaScript API.');loading=false;};
+document.getElementById('load').addEventListener('click',()=>{if(loading||window.tadanoMap)return;const key=input.value.trim();if(!/^AIza[\w-]{20,}$/.test(key)){message('Saisis une clé Google Maps valide.');return;}localStorage.setItem('tadano_maps_browser_key',key);loading=true;message('Chargement de Google Maps…');const s=document.createElement('script');s.async=true;s.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(key)+'&callback=initTadanoMap&loading=async';s.onerror=()=>{loading=false;message('Impossible de charger Google Maps. Vérifie ta connexion et les paramètres de la clé.');};document.head.appendChild(s);});
+document.getElementById('clear').addEventListener('click',()=>{localStorage.removeItem('tadano_maps_browser_key');input.value='';message('Clé effacée du stockage local. Recharge la page pour réinitialiser la carte.');});
+</script></body></html>
