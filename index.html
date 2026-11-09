@@ -15,6 +15,8 @@ function draw(){if(!map||!window.google)return;markers.forEach(m=>m.setMap(null)
 window.initTadanoMap=()=>{try{map=new google.maps.Map($('map'),{center:{lat:46.603354,lng:1.888334},zoom:6,mapTypeControl:true,streetViewControl:false,fullscreenControl:true});draw();notify();}catch(e){status('Erreur de carte : '+e.message);}};
 window.gm_authFailure=()=>{status('Google Maps a refusé la clé : vérifie facturation, restrictions et API.');loading=false;};
 $('load').onclick=()=>{if(loading||map)return;const key=$('key').value.trim();if(!/^AIza[\w-]{20,}$/.test(key)){status('Clé Google Maps non valide.');return;}localStorage.setItem(STORE,key);loading=true;status('Chargement de Google Maps…');const s=document.createElement('script');s.async=true;s.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(key)+'&callback=initTadanoMap&loading=async';s.onerror=()=>{status('Impossible de charger Google Maps.');loading=false;};document.head.appendChild(s);};
+// Charger automatiquement la carte si la clé a déjà été enregistrée.
+if ($('key').value.trim()) { $('load').click(); }
 $('forget').onclick=()=>{localStorage.removeItem(STORE);$('key').value='';status('Clé effacée. Recharge la page pour réinitialiser Google Maps.');};
 if(window.parent!==window)document.body.classList.add('embedded');
 notify();
